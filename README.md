@@ -23,3 +23,5 @@ curl -L -o install https://git.io/JeOSr && chmod +x install
 <code>-S</code> - секретный ключ;<br>
 <code>-P</code> - рекламный тег;<br>
 <code>-D</code> - домен с поддержкой TLS 1.3 (проверить можно <a href="https://www.cdn77.com/tls-test">тут</a>).
+
+Для обладателей CentOS/RHEL необходимо добавить ключ <code>-centos</code>.
