@@ -12,7 +12,7 @@ curl -L -o install https://git.io/JeOSr && chmod +x install
 ./install
 ```
 
-По умолчанию: порт 443, генерируется рандомный секретный ключ, домен www.google.com.
+По умолчанию: порт 443, генерируется рандомный секретный ключ, домен www.google.com
 
 ### Пример
 ```bash
@@ -24,4 +24,11 @@ curl -L -o install https://git.io/JeOSr && chmod +x install
 <code>-P</code> - рекламный тег;<br>
 <code>-D</code> - домен с поддержкой TLS 1.3 (проверить можно <a href="https://www.cdn77.com/tls-test">тут</a>).
 
-Для обладателей CentOS/RHEL необходимо добавить ключ <code>-centos</code>.
+Для обладателей CentOS/RHEL необходимо добавить флаг <code>-centos</code>
+
+### Удаление сервера
+```bash
+./install -uninstall=443
+```
+
+Флаг <code>-uninstall</code> с указанием порта сервера.
