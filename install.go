@@ -25,7 +25,7 @@ func randomHex(n int) string {
 	return hex.EncodeToString(bytes)
 }
 
-func GetOutboundIP() net.IP {
+func getIP() net.IP {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
 		log.Fatal(err)
@@ -42,13 +42,24 @@ func main() {
 
 	centos := flag.Bool("centos", false, "On CentOS/RHEL")
 
-	portStats := flag.String("p", "", "Is the local port")
+	portStats := flag.String("p", "", "Is the local port for stats")
 	port := flag.String("H", "443", "Is the port, used by clients to connect to the proxy")
 	secret := flag.String("S", randomHex(16), "Secret")
-	tag := flag.String("P", "", "Ad tag")
-	domain := flag.String("D", "www.google.com", "Domain")
+	tag := flag.String("P", "", "Ad tag get here @MTProxybot")
+	domain := flag.String("D", "www.google.com", "Domain with TLS 1.3 support")
+
+	uninstall := flag.String("uninstall", "", "Removing a server")
 
 	flag.Parse()
+
+	if *uninstall != "" {
+		cmd("systemctl stop MTProxy-" + *uninstall + ".service")
+		cmd("systemctl disable MTProxy-" + *uninstall + ".service")
+		cmd("rm /etc/systemd/system/MTProxy-" + *uninstall + ".service")
+
+		log.Println("Uninstall complete / Удаление завершено")
+		return
+	}
 
 	log.Println("Dependency check / Проверка зависимостей")
 
@@ -112,5 +123,5 @@ WantedBy=multi-user.target`
 	dst := make([]byte, hex.EncodedLen(len(src)))
 	hex.Encode(dst, src)
 
-	fmt.Println("\n\n\ntg://proxy?server=" + GetOutboundIP().String() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s\n", dst)+"\n\n\n")
+	fmt.Println("\n\n\ntg://proxy?server=" + getIP().String() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s\n", dst)+"\n\n\n")
 }
