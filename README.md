@@ -4,7 +4,7 @@
 ## Установка
 ### Загрузка исполняемого файла
 ```bash
-apt update && curl -L -o install https://git.io/JeOSr && chmod +x install
+curl -L -o install https://git.io/JeOSr && chmod +x install
 ```
 
 ### Быстрая установка
