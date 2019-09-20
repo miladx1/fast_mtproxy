@@ -25,16 +25,14 @@ func randomHex(n int) string {
 	return hex.EncodeToString(bytes)
 }
 
-func getIP() net.IP {
+func getIP() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
-		log.Fatal(err)
+		log.Println("[error]", err, "(Failed to determine IP / Не удалось определить IP)")
 	}
 	defer conn.Close()
 
-	localAddr := conn.LocalAddr().(*net.UDPAddr)
-
-	return localAddr.IP
+	return conn.LocalAddr().(*net.UDPAddr).IP.String()
 }
 
 func main() {
@@ -100,7 +98,7 @@ func main() {
 		third = " -D " + *domain
 	}
 
-	systemd := `[Unit]
+	config := `[Unit]
 Description=MTProxy
 After=network.target
 
@@ -109,11 +107,13 @@ Type=simple
 WorkingDirectory=/opt/mtproxy
 ExecStart=/opt/mtproxy/mtproto-proxy -u nobody` + first + " -H " + *port + " -S " + *secret + second + third + ` --aes-pwd proxy-secret proxy-multi.conf
 Restart=on-failure
+LimitNOFILE=infinity
+LimitMEMLOCK=infinity
 
 [Install]
 WantedBy=multi-user.target`
 
-	cmd("echo \"" + systemd + "\" >> /etc/systemd/system/MTProxy-" + *port + ".service")
+	cmd("echo \"" + config + "\" >> /etc/systemd/system/MTProxy-" + *port + ".service")
 
 	cmd("systemctl daemon-reload")
 	cmd("systemctl restart MTProxy-" + *port + ".service")
@@ -123,5 +123,5 @@ WantedBy=multi-user.target`
 	dst := make([]byte, hex.EncodedLen(len(src)))
 	hex.Encode(dst, src)
 
-	fmt.Println("\n\n\ntg://proxy?server=" + getIP().String() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s\n", dst)+"\n\n\n")
+	fmt.Println("\n\n\ntg://proxy?server=" + getIP() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s\n", dst) + "\n\n\n")
 }
