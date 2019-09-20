@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"os"
 	"os/exec"
 )
 
@@ -28,7 +29,7 @@ func randomHex(n int) string {
 func getIP() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
-		log.Println("[error]", err, "(Failed to determine IP / Не удалось определить IP)")
+		log.Println("[error]", err, "(Failed to determine IP | Не удалось определить IP)")
 	}
 	defer conn.Close()
 
@@ -36,7 +37,7 @@ func getIP() string {
 }
 
 func main() {
-	log.Println("Starting / Начало работы")
+	log.Println("Starting | Начало работы")
 
 	centos := flag.Bool("centos", false, "On CentOS/RHEL")
 
@@ -55,20 +56,53 @@ func main() {
 		cmd("systemctl disable MTProxy-" + *uninstall + ".service")
 		cmd("rm /etc/systemd/system/MTProxy-" + *uninstall + ".service")
 
-		log.Println("Uninstall complete / Удаление завершено")
+		log.Println("Uninstall complete | Удаление завершено")
+		log.Println("Program completed | Программа завершена")
 		return
 	}
 
-	log.Println("Dependency check / Проверка зависимостей")
+	if _, err := os.Stat("/etc/systemd/system/MTProxy-" + *port + ".service"); !os.IsNotExist(err) {
+		log.Println("A server with such a port has already been created, overwrite it?")
+		log.Println("Сервер с таким портом уже создан, перезаписать его?")
+
+		answer := ""
+		fmt.Print("\n\ny/N: ")
+		_, _ = fmt.Scan(&answer)
+
+		switch answer {
+		case "y":
+			cmd("systemctl stop MTProxy-" + *port + ".service")
+			cmd("systemctl disable MTProxy-" + *port + ".service")
+			cmd("rm /etc/systemd/system/MTProxy-" + *port + ".service")
+		case "Y":
+			cmd("systemctl stop MTProxy-" + *port + ".service")
+			cmd("systemctl disable MTProxy-" + *port + ".service")
+			cmd("rm /etc/systemd/system/MTProxy-" + *port + ".service")
+		case "n":
+			log.Println("Program completed | Программа завершена")
+			return
+		case "N":
+			log.Println("Program completed | Программа завершена")
+			return
+		default:
+			log.Println("Invalid input | Некорректный ввод")
+			log.Println("Program completed | Программа завершена")
+			return
+		}
+	}
+
+	log.Println("Dependency check | Проверка зависимостей")
 
 	if *centos {
+		cmd("yum update")
 		cmd("yum -y install openssl-devel zlib-devel")
 		cmd("yum -y groupinstall \"Development Tools\"")
 	} else {
+		cmd("apt update")
 		cmd("apt -y install git make build-essential libssl-dev zlib1g-dev")
 	}
 
-	log.Println("Installing / Установка")
+	log.Println("Installing | Установка")
 	cmd("git clone https://github.com/TelegramMessenger/MTProxy && cd MTProxy && make && cd objs/bin && " +
 		"curl -s https://core.telegram.org/getProxySecret -o proxy-secret && " +
 		"curl -s https://core.telegram.org/getProxyConfig -o proxy-multi.conf")
@@ -80,7 +114,7 @@ func main() {
 
 	cmd("rm -r MTProxy")
 
-	log.Println("Creating a service / Создание службы")
+	log.Println("Creating a service | Создание службы")
 	cmd("touch /etc/systemd/system/MTProxy-" + *port + ".service")
 
 	first := ""
@@ -123,5 +157,7 @@ WantedBy=multi-user.target`
 	dst := make([]byte, hex.EncodedLen(len(src)))
 	hex.Encode(dst, src)
 
-	fmt.Println("\n\n\ntg://proxy?server=" + getIP() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s\n", dst) + "\n\n\n")
+	log.Println("Program completed | Программа завершена")
+
+	fmt.Println("\n\n\ntg://proxy?server=" + getIP() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
 }
