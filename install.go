@@ -31,13 +31,19 @@ func getIP() string {
 	if err != nil {
 		log.Println("[error]", err, "(Failed to determine IP | Не удалось определить IP)")
 	}
-	defer conn.Close()
+
+	defer func() {
+		err := conn.Close()
+		if err != nil {
+			log.Println("[error]", err)
+		}
+	}()
 
 	return conn.LocalAddr().(*net.UDPAddr).IP.String()
 }
 
 func main() {
-	log.Println("Starting | Начало работы")
+	log.Println("          Starting | Начало работы")
 
 	centos := flag.Bool("centos", false, "On CentOS/RHEL")
 
@@ -59,7 +65,7 @@ func main() {
 		cmd("rm /etc/systemd/system/MTProxy-" + *uninstall + ".service")
 
 		log.Println("Uninstall complete | Удаление завершено")
-		log.Println("Program completed | Программа завершена")
+		log.Println(" Program completed | Программа завершена")
 		return
 	}
 
@@ -93,7 +99,7 @@ func main() {
 		}
 	}
 
-	log.Println("Dependency check | Проверка зависимостей")
+	log.Println("  Dependency check | Проверка зависимостей")
 
 	if *centos {
 		cmd("yum update")
@@ -104,7 +110,7 @@ func main() {
 		cmd("apt -y install git make build-essential libssl-dev zlib1g-dev")
 	}
 
-	log.Println("Installing | Установка")
+	log.Println("        Installing | Установка")
 	cmd("git clone https://github.com/TelegramMessenger/MTProxy && cd MTProxy && make && cd objs/bin && " +
 		"curl -s https://core.telegram.org/getProxySecret -o proxy-secret && " +
 		"curl -s https://core.telegram.org/getProxyConfig -o proxy-multi.conf")
@@ -159,9 +165,9 @@ WantedBy=multi-user.target`
 	dst := make([]byte, hex.EncodedLen(len(src)))
 	hex.Encode(dst, src)
 
-	log.Println("Program completed | Программа завершена")
+	log.Println(" Program completed | Программа завершена")
 
-	fmt.Println("\n\n\nServer file path | Путь файлов сервера - /opt/mtproxy/")
-	fmt.Println("Configuration file path | Путь файла конфигурации - " + path)
+	fmt.Println("\n\n\nServer file path | Путь файлов сервера     — /opt/mtproxy/")
+	fmt.Println("Config file path | Путь файла конфигурации — " + path)
 	fmt.Println("\ntg://proxy?server=" + getIP() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
 }
