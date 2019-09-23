@@ -51,6 +51,8 @@ func main() {
 
 	flag.Parse()
 
+	path := "/etc/systemd/system/MTProxy-" + *port + ".service"
+
 	if *uninstall != "" {
 		cmd("systemctl stop MTProxy-" + *uninstall + ".service")
 		cmd("systemctl disable MTProxy-" + *uninstall + ".service")
@@ -61,7 +63,7 @@ func main() {
 		return
 	}
 
-	if _, err := os.Stat("/etc/systemd/system/MTProxy-" + *port + ".service"); !os.IsNotExist(err) {
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		log.Println("A server with such a port has already been created, overwrite it?")
 		log.Println("Сервер с таким портом уже создан, перезаписать его?")
 
@@ -73,11 +75,11 @@ func main() {
 		case "y":
 			cmd("systemctl stop MTProxy-" + *port + ".service")
 			cmd("systemctl disable MTProxy-" + *port + ".service")
-			cmd("rm /etc/systemd/system/MTProxy-" + *port + ".service")
+			cmd("rm " + path)
 		case "Y":
 			cmd("systemctl stop MTProxy-" + *port + ".service")
 			cmd("systemctl disable MTProxy-" + *port + ".service")
-			cmd("rm /etc/systemd/system/MTProxy-" + *port + ".service")
+			cmd("rm " + path)
 		case "n":
 			log.Println("Program completed | Программа завершена")
 			return
@@ -115,7 +117,7 @@ func main() {
 	cmd("rm -r MTProxy")
 
 	log.Println("Creating a service | Создание службы")
-	cmd("touch /etc/systemd/system/MTProxy-" + *port + ".service")
+	cmd("touch " + path)
 
 	first := ""
 	if *portStats != "" {
@@ -147,7 +149,7 @@ LimitMEMLOCK=infinity
 [Install]
 WantedBy=multi-user.target`
 
-	cmd("echo \"" + config + "\" >> /etc/systemd/system/MTProxy-" + *port + ".service")
+	cmd("echo \"" + config + "\" >> " + path)
 
 	cmd("systemctl daemon-reload")
 	cmd("systemctl restart MTProxy-" + *port + ".service")
@@ -159,5 +161,7 @@ WantedBy=multi-user.target`
 
 	log.Println("Program completed | Программа завершена")
 
-	fmt.Println("\n\n\ntg://proxy?server=" + getIP() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
+	fmt.Println("\n\n\nServer file path | Путь файлов сервера - /opt/mtproxy/")
+	fmt.Println("Configuration file path | Путь файла конфигурации - " + path)
+	fmt.Println("\ntg://proxy?server=" + getIP() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
 }
