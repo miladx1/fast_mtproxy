@@ -111,7 +111,7 @@ func main() {
 	}
 
 	log.Println("        Installing | Установка")
-	cmd("git clone https://github.com/TelegramMessenger/MTProxy && cd MTProxy && make && cd objs/bin && " +
+	cmd("git clone https://github.com/hookzof/MTProxy && cd MTProxy && make && cd objs/bin && " +
 		"curl -s https://core.telegram.org/getProxySecret -o proxy-secret && " +
 		"curl -s https://core.telegram.org/getProxyConfig -o proxy-multi.conf")
 
