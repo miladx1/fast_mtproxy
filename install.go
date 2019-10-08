@@ -5,8 +5,10 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
+	"net/http"
 	"os"
 	"os/exec"
 )
@@ -125,19 +127,37 @@ func main() {
 	log.Println("Creating a service | Создание службы")
 	cmd("touch " + path)
 
-	first := ""
+	resp, err := http.Get("https://v4.ident.me/")
+	if err != nil {
+		log.Println("[error]", err)
+	}
+
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			log.Println("[error]", err)
+		}
+	}()
+
+	trueIP, err := ioutil.ReadAll(resp.Body)
+
+	options := ""
 	if *portStats != "" {
-		first = " -p " + *portStats
+		options += " -p " + *portStats
 	}
 
-	second := ""
 	if *tag != "" {
-		second = " -P " + *tag
+		options += " -P " + *tag
 	}
 
-	third := " -D www.google.com"
 	if *domain != "www.google.com" {
-		third = " -D " + *domain
+		options += " -D " + *domain
+	} else {
+		options += " -D www.google.com"
+	}
+
+	if getIP()[:3] == "10." {
+		options += " --nat-info " + getIP() + ":" + string(trueIP)
 	}
 
 	config := `[Unit]
@@ -147,7 +167,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=/opt/mtproxy
-ExecStart=/opt/mtproxy/mtproto-proxy -u nobody` + first + " -H " + *port + " -S " + *secret + second + third + ` --aes-pwd proxy-secret proxy-multi.conf
+ExecStart=/opt/mtproxy/mtproto-proxy -u nobody -H ` + *port + " -S " + *secret + options + ` --aes-pwd proxy-secret proxy-multi.conf
 Restart=on-failure
 LimitNOFILE=infinity
 LimitMEMLOCK=infinity
@@ -169,5 +189,5 @@ WantedBy=multi-user.target`
 
 	fmt.Println("\n\n\nServer file path | Путь файлов сервера     — /opt/mtproxy/")
 	fmt.Println("Config file path | Путь файла конфигурации — " + path)
-	fmt.Println("\ntg://proxy?server=" + getIP() + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
+	fmt.Println("\ntg://proxy?server=" + string(trueIP) + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
 }
