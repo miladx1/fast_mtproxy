@@ -1,10 +1,10 @@
 [Russian version](README.md)
 
 # fast_mtproxy
-Fast deployment of the official MTProxy server with support for Fake TLS.
+Fast deployment of the official MTProxy server with Fake TLS support.
 
-## Working with a script
-### Download executable file
+## Working with the script
+### Downloading an executable file
 ```bash
 curl -L -o install https://git.io/JeOSr && chmod +x install
 ```
@@ -14,7 +14,7 @@ curl -L -o install https://git.io/JeOSr && chmod +x install
 ./install
 ```
 
-Default: port 443, random secret key generated, domain www.google.com
+Default: port 443, generates a random secret key, domain www.google.com
 
 ### Example
 ```bash
@@ -26,17 +26,17 @@ Default: port 443, random secret key generated, domain www.google.com
 `-P` - ad tag (get here @MTProxybot);  
 `-D` - TLS 1.3 domain (you can check <a href="https://www.cdn77.com/tls-test">here</a>).
 
-For CentOS/RHEL holders you need to add a flag `-centos`
+For owners of CentOS/RHEL it's necessary to add the flag `-centos`
 
-### Server removal
+### Removal of the server
 ```bash
 ./install -uninstall=443
 ```
 
-Flag `-uninstall` indicating the server port.
+Flag `-uninstall` with indication of the server port.
 
 ## Recommendations
-The protocol, due to its features, mimics under TLS 1.3, therefore, it is necessary to use the appropriate ports for greater credibility (domain examples are shown in brackets):
+Due to its peculiarities, the protocol mimics under TLS 1.3, so it is necessary to use the corresponding ports for more convincing (examples of domains are given in brackets):
 * 261
 * 271
 * 324
@@ -61,7 +61,7 @@ The protocol, due to its features, mimics under TLS 1.3, therefore, it is necess
 * 6619
 * 8883
 
-The best solution in terms of logic would be to use the hostname of your hosting provider, for example:
+The best logical solution is to use your hosting provider's hostname, for example:
 ```
 >nslookup 116.203.235.0
 
@@ -69,4 +69,4 @@ Name:    static.0.235.203.116.clients.your-server.de
 Address:  116.203.235.0
 ```
 
-`static.0.235.203.116.clients.your-server.de` - indicated in domain.
+`static.0.235.203.116.clients.your-server.de` - is specified in the domain.
