@@ -26,7 +26,7 @@ Default: port 443, generates a random secret key, domain www.google.com
 `-H` - port to connect;  
 `-S` - secret key;  
 `-P` - ad tag (get here @MTProxybot);  
-`-D` - TLS 1.3 domain (you can check <a href="https://www.cdn77.com/tls-test">here</a>);
+`-D` - TLS 1.3 domain (you can check <a href="https://www.cdn77.com/tls-test">here</a>);  
 `-6` - enable ipv6 protocol (must be supported by your hosting provider).
 
 For owners of CentOS/RHEL it's necessary to add the flag `-centos`
