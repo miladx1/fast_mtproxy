@@ -31,7 +31,7 @@ func randomHex(n int) string {
 func getIP() string {
 	conn, err := net.Dial("udp", "8.8.8.8:80")
 	if err != nil {
-		log.Println("[error]", err, "(Failed to determine IP | Не удалось определить IP)")
+		log.Println("[error]", err, "(Couldn't identify IP | Не удалось определить IP)")
 	}
 
 	defer func() {
@@ -44,10 +44,34 @@ func getIP() string {
 	return conn.LocalAddr().(*net.UDPAddr).IP.String()
 }
 
+func getTrueIP(prot string) string {
+	res, err := http.Get("https://v" + prot + ".ident.me/")
+	if err != nil {
+		log.Println("[error]", err)
+		return ""
+	}
+
+	defer func() {
+		err := res.Body.Close()
+		if err != nil {
+			log.Println("[error]", err)
+		}
+	}()
+
+	ip, _ := ioutil.ReadAll(res.Body)
+
+	if net.ParseIP(string(ip)) != nil {
+		return string(ip)
+	} else {
+		return ""
+	}
+}
+
 func main() {
 	log.Println("          Starting | Начало работы")
 
 	centos := flag.Bool("centos", false, "On CentOS/RHEL")
+	ipv6 := flag.Bool("6", false, "Activation of ipv6")
 
 	portStats := flag.String("p", "", "Is the local port for stats")
 	port := flag.String("H", "443", "Is the port, used by clients to connect to the proxy")
@@ -55,16 +79,53 @@ func main() {
 	tag := flag.String("P", "", "Ad tag get here @MTProxybot")
 	domain := flag.String("D", "www.google.com", "Domain with TLS 1.3 support")
 
-	uninstall := flag.String("uninstall", "", "Removing a server")
+	start := flag.String("start", "", "Start server")
+	stop := flag.String("stop", "", "Stop server")
+	restart := flag.String("restart", "", "Restart server")
+	disable := flag.String("disable", "", "Disable server")
+	remove := flag.String("delete", "", "Delete server")
 
 	flag.Parse()
 
 	path := "/etc/systemd/system/MTProxy-" + *port + ".service"
 
-	if *uninstall != "" {
-		cmd("systemctl stop MTProxy-" + *uninstall + ".service")
-		cmd("systemctl disable MTProxy-" + *uninstall + ".service")
-		cmd("rm /etc/systemd/system/MTProxy-" + *uninstall + ".service")
+	if *start != "" {
+		cmd("systemctl start MTProxy-" + *start + ".service")
+
+		log.Println(" Server is started | Сервер запущен")
+		log.Println(" Program completed | Программа завершена")
+		return
+	}
+
+	if *stop != "" {
+		cmd("systemctl stop MTProxy-" + *stop + ".service")
+
+		log.Println(" Server is stopped | Сервер остановлен")
+		log.Println(" Program completed | Программа завершена")
+		return
+	}
+
+	if *restart != "" {
+		cmd("systemctl restart MTProxy-" + *restart + ".service")
+
+		log.Println("  Server is restarted | Сервер перезапущен")
+		log.Println("    Program completed | Программа завершена")
+		return
+	}
+
+	if *disable != "" {
+		cmd("systemctl stop MTProxy-" + *disable + ".service")
+		cmd("systemctl disable MTProxy-" + *disable + ".service")
+
+		log.Println(" Server is disabled | Сервер отключен")
+		log.Println("  Program completed | Программа завершена")
+		return
+	}
+
+	if *remove != "" {
+		cmd("systemctl stop MTProxy-" + *remove + ".service")
+		cmd("systemctl disable MTProxy-" + *remove + ".service")
+		cmd("rm /etc/systemd/system/MTProxy-" + *remove + ".service")
 
 		log.Println("Uninstall complete | Удаление завершено")
 		log.Println(" Program completed | Программа завершена")
@@ -72,7 +133,7 @@ func main() {
 	}
 
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		log.Println("A server with such a port has already been created, overwrite it?")
+		log.Println("A server with such a port is already created, to rewrite it?")
 		log.Println("Сервер с таким портом уже создан, перезаписать его?")
 
 		answer := ""
@@ -127,20 +188,6 @@ func main() {
 	log.Println("Creating a service | Создание службы")
 	cmd("touch " + path)
 
-	resp, err := http.Get("https://v4.ident.me/")
-	if err != nil {
-		log.Println("[error]", err)
-	}
-
-	defer func() {
-		err := resp.Body.Close()
-		if err != nil {
-			log.Println("[error]", err)
-		}
-	}()
-
-	trueIP, err := ioutil.ReadAll(resp.Body)
-
 	options := ""
 	if *portStats != "" {
 		options += " -p " + *portStats
@@ -156,8 +203,19 @@ func main() {
 		options += " -D www.google.com"
 	}
 
+	v4 := getTrueIP("4")
+
 	if getIP()[:3] == "10." {
-		options += " --nat-info " + getIP() + ":" + string(trueIP)
+		if v4 != "" {
+			options += " --nat-info " + getIP() + ":" + v4
+		} else {
+			log.Println("Couldn't get a real ipv4")
+			return
+		}
+	}
+
+	if *ipv6 {
+		options += " -6"
 	}
 
 	config := `[Unit]
@@ -187,7 +245,24 @@ WantedBy=multi-user.target`
 
 	log.Println(" Program completed | Программа завершена")
 
-	fmt.Println("\n\n\nServer file path | Путь файлов сервера     — /opt/mtproxy/")
-	fmt.Println("Config file path | Путь файла конфигурации — " + path)
-	fmt.Println("\ntg://proxy?server=" + string(trueIP) + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
+	fmt.Println("\n\n\nServer file path | Путь файлов сервера — /opt/mtproxy/")
+	fmt.Println("Config file path | Путь конфиг файла   — " + path)
+
+	if v4 != "" {
+		fmt.Println("\n\ntg://proxy?server=" + v4 + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n")
+	} else {
+		log.Println("\nCouldn't get a real ipv4")
+		return
+	}
+
+	if *ipv6 {
+		v6 := getTrueIP("6")
+
+		if v6 != "" {
+			fmt.Println("tg://proxy?server=" + v6 + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
+		} else {
+			log.Println("Couldn't get a real ipv6")
+			return
+		}
+	}
 }
