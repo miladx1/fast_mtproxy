@@ -62,9 +62,9 @@ func getTrueIP(prot string) string {
 
 	if net.ParseIP(string(ip)) != nil {
 		return string(ip)
-	} else {
-		return ""
 	}
+
+	return ""
 }
 
 func main() {
@@ -82,6 +82,7 @@ func main() {
 	start := flag.String("start", "", "Start server")
 	stop := flag.String("stop", "", "Stop server")
 	restart := flag.String("restart", "", "Restart server")
+	enable := flag.String("enable", "", "Enable server")
 	disable := flag.String("disable", "", "Disable server")
 	remove := flag.String("delete", "", "Delete server")
 
@@ -110,6 +111,16 @@ func main() {
 
 		log.Println("  Server is restarted | Сервер перезапущен")
 		log.Println("    Program completed | Программа завершена")
+		return
+	}
+
+	if *enable != "" {
+		cmd("systemctl daemon-reload")
+		cmd("systemctl restart MTProxy-" + *enable + ".service")
+		cmd("systemctl enable MTProxy-" + *enable + ".service")
+
+		log.Println("  Server is enabled | Сервер включен")
+		log.Println("  Program completed | Программа завершена")
 		return
 	}
 
