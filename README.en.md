@@ -1,7 +1,9 @@
 [Russian version](README.md)
 
 # fast_mtproxy
-Fast deployment of the official MTProxy server with Fake TLS support.
+Fast deployment of the official MTProxy server with Fake TLS support.  
+  
+It's also worth paying attention to third-party implementations of MTProxy: [Erlang](https://github.com/seriyps/mtproto_proxy), [Golang](https://github.com/9seconds/mtg), [Python](https://github.com/alexbers/mtprotoproxy)
 
 ## Working with the script
 ### Downloading an executable file
@@ -24,16 +26,22 @@ Default: port 443, generates a random secret key, domain www.google.com
 `-H` - port to connect;  
 `-S` - secret key;  
 `-P` - ad tag (get here @MTProxybot);  
-`-D` - TLS 1.3 domain (you can check <a href="https://www.cdn77.com/tls-test">here</a>).
+`-D` - TLS 1.3 domain (you can check <a href="https://www.cdn77.com/tls-test">here</a>);
+`-6` - enable ipv6 protocol (must be supported by your hosting provider).
 
 For owners of CentOS/RHEL it's necessary to add the flag `-centos`
 
-### Removal of the server
+### Actions with server
 ```bash
-./install -uninstall=443
+./install -restart=443
 ```
 
-Flag `-uninstall` with indication of the server port.
+Flags indicating the server port:
+* `start` - server startup;
+* `stop` - server shutdown;
+* `restart` - server restart;
+* `disable` - server shutdown (soft deletion);
+* `delete` - server removal.
 
 ## Recommendations
 Due to its peculiarities, the protocol mimics under TLS 1.3, so it is necessary to use the corresponding ports for more convincing (examples of domains are given in brackets):
