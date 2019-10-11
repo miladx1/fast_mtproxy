@@ -1,7 +1,9 @@
 [English version](README.en.md)
 
 # fast_mtproxy
-Быстрое развёртывание официального MTProxy сервера с поддержкой Fake TLS.
+Быстрое развёртывание официального MTProxy сервера с поддержкой Fake TLS.  
+  
+Также стоит обратить внимание на сторонние реализации MTProxy: [Erlang](https://github.com/seriyps/mtproto_proxy), [Golang](https://github.com/9seconds/mtg), [Python](https://github.com/alexbers/mtprotoproxy)
 
 ## Работа со скриптом
 ### Загрузка исполняемого файла
@@ -24,8 +26,8 @@ curl -L -o install https://git.io/JeOSr && chmod +x install
 `-H` - порт для подключения;  
 `-S` - секретный ключ;  
 `-P` - рекламный тег (получать тут @MTProxybot);  
-`-D` - домен с поддержкой TLS 1.3 (проверить можно <a href="https://www.cdn77.com/tls-test">тут</a>);
-`-6` - включение протокола ipv6.
+`-D` - домен с поддержкой TLS 1.3 (проверить можно <a href="https://www.cdn77.com/tls-test">тут</a>);  
+`-6` - включение протокола ipv6 (должен поддерживаться вашим хостинг провайдером).
 
 Для обладателей CentOS/RHEL необходимо добавить флаг `-centos`
 
