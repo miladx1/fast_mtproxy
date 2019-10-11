@@ -37,9 +37,10 @@ For owners of CentOS/RHEL it's necessary to add the flag `-centos`
 ```
 
 Flags indicating the server port:
-* `start` - server startup;
-* `stop` - server shutdown;
+* `start` - server start;
+* `stop` - server stop;
 * `restart` - server restart;
+* `enable` - server activation + autorun;
 * `disable` - server shutdown (soft deletion);
 * `delete` - server removal.
 
