@@ -58,9 +58,9 @@ func getTrueIP(prot string) string {
 		}
 	}()
 
-	ip, _ := ioutil.ReadAll(res.Body)
+	ip, err := ioutil.ReadAll(res.Body)
 
-	if net.ParseIP(string(ip)) != nil {
+	if net.ParseIP(string(ip)) != nil && err == nil {
 		return string(ip)
 	}
 
@@ -262,8 +262,7 @@ WantedBy=multi-user.target`
 	if v4 != "" {
 		fmt.Println("\n\ntg://proxy?server=" + v4 + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n")
 	} else {
-		log.Println("\nCouldn't get a real ipv4")
-		return
+		fmt.Println("\n\nCouldn't get a real ipv4")
 	}
 
 	if *ipv6 {
@@ -272,8 +271,7 @@ WantedBy=multi-user.target`
 		if v6 != "" {
 			fmt.Println("tg://proxy?server=" + v6 + "&port=" + *port + "&secret=ee" + *secret + fmt.Sprintf("%s", dst) + "\n\n\n")
 		} else {
-			log.Println("Couldn't get a real ipv6")
-			return
+			fmt.Println("Couldn't get a real ipv6")
 		}
 	}
 }
