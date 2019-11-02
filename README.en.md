@@ -18,7 +18,7 @@ curl -L -o install https://git.io/JeOSr && chmod +x install
 
 Default: port 443, generates a random secret key, domain www.google.com
 
-### Example
+### Example of detailed installation
 ```bash
 ./install -p=8888 -H=443 -S=25c8dfee81acdadaff3a338a10db8497 -D=www.google.com
 ```
@@ -46,36 +46,8 @@ Flags indicating the server port:
 
 ## Recommendations
 Due to its peculiarities, the protocol mimics under TLS 1.3, so it is necessary to use the corresponding ports for more convincing (examples of domains are given in brackets):
-* 261
-* 271
-* 324
+* 261, 271, 324
 * 443 (www.google.com, www.youtube.com)
-* 465
-* 563
-* 636
+* 465, 563, 636
 * 853 (dns.google, cloudflare-dns.com)
-* 989
-* 990
-* 992
-* 993
-* 994
-* 995
-* 4843
-* 5061
-* 5085
-* 5349
-* 5671
-* 6513
-* 6514
-* 6619
-* 8883
-
-The best logical solution is to use your hosting provider's hostname, for example:
-```
->nslookup 116.203.235.0
-
-Name:    static.0.235.203.116.clients.your-server.de
-Address:  116.203.235.0
-```
-
-`static.0.235.203.116.clients.your-server.de` - is specified in the domain.
+* 989, 990, 992, 993, 994, 995, 4843, 5061, 5085, 5349, 5671, 6513, 6514, 6619, 8883
