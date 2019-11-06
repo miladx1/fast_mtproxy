@@ -178,6 +178,10 @@ func main() {
 		cmd("yum update")
 		cmd("yum -y install openssl-devel zlib-devel")
 		cmd("yum -y groupinstall \"Development Tools\"")
+	} else if _, err := os.Stat("/etc/fedora-release"); !os.IsNotExist(err) {
+		cmd("yum update")
+		cmd("yum -y install openssl-devel zlib-devel")
+		cmd("yum -y groupinstall \"Development Tools\"")
 	} else {
 		cmd("apt update")
 		cmd("apt -y install git make build-essential libssl-dev zlib1g-dev")
