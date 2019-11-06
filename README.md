@@ -29,8 +29,6 @@ curl -L -o install https://git.io/JeOSr && chmod +x install
 `-D` - домен с поддержкой TLS 1.3 (проверить можно <a href="https://www.cdn77.com/tls-test">тут</a>);  
 `-6` - включение протокола ipv6 (должен поддерживаться вашим хостинг провайдером).
 
-Для обладателей CentOS/RHEL необходимо добавить флаг `-centos`
-
 ### Действия с сервером
 ```bash
 ./install -restart=443
