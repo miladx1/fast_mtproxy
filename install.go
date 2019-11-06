@@ -70,9 +70,6 @@ func getTrueIP(prot string) string {
 func main() {
 	log.Println("          Starting | Начало работы")
 
-	centos := flag.Bool("centos", false, "On CentOS/RHEL")
-	ipv6 := flag.Bool("6", false, "Activation of ipv6")
-
 	portStats := flag.String("p", "", "Is the local port for stats")
 	port := flag.String("H", "443", "Is the port, used by clients to connect to the proxy")
 	secret := flag.String("S", randomHex(16), "Secret")
@@ -85,6 +82,8 @@ func main() {
 	enable := flag.String("enable", "", "Enable server")
 	disable := flag.String("disable", "", "Disable server")
 	remove := flag.String("delete", "", "Delete server")
+
+	ipv6 := flag.Bool("6", false, "Activation of ipv6")
 
 	flag.Parse()
 
@@ -175,7 +174,7 @@ func main() {
 
 	log.Println("  Dependency check | Проверка зависимостей")
 
-	if *centos {
+	if _, err := os.Stat("/etc/centos-release"); !os.IsNotExist(err) {
 		cmd("yum update")
 		cmd("yum -y install openssl-devel zlib-devel")
 		cmd("yum -y groupinstall \"Development Tools\"")
