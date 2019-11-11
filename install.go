@@ -9,6 +9,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 func cmd(cmd string) string {
@@ -44,6 +45,7 @@ func getIP() string {
 
 func getTrueIP(ver string) string {
 	ip := cmd("curl ifconfig.co -" + ver)
+	ip = strings.Trim(ip, "\n")
 	if net.ParseIP(ip) != nil {
 		return ip
 	}
