@@ -5,10 +5,8 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net"
-	"net/http"
 	"os"
 	"os/exec"
 )
@@ -44,24 +42,10 @@ func getIP() string {
 	return conn.LocalAddr().(*net.UDPAddr).IP.String()
 }
 
-func getTrueIP(prot string) string {
-	res, err := http.Get("https://v" + prot + ".ident.me/")
-	if err != nil {
-		log.Println("[error]", err)
-		return ""
-	}
-
-	defer func() {
-		err := res.Body.Close()
-		if err != nil {
-			log.Println("[error]", err)
-		}
-	}()
-
-	ip, err := ioutil.ReadAll(res.Body)
-
-	if net.ParseIP(string(ip)) != nil && err == nil {
-		return string(ip)
+func getTrueIP(ver string) string {
+	ip := cmd("curl ifconfig.co -" + ver)
+	if net.ParseIP(ip) != nil {
+		return ip
 	}
 
 	return ""
