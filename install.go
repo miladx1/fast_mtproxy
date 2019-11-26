@@ -133,22 +133,15 @@ func main() {
 		log.Println("Сервер с таким портом уже создан, перезаписать его?")
 
 		answer := ""
-		fmt.Print("\n\ny/N: ")
+		fmt.Print("\n\nY/N: ")
 		_, _ = fmt.Scan(&answer)
 
 		switch answer {
-		case "y":
+		case "y", "Y":
 			cmd("systemctl stop MTProxy-" + *port + ".service")
 			cmd("systemctl disable MTProxy-" + *port + ".service")
 			cmd("rm " + path)
-		case "Y":
-			cmd("systemctl stop MTProxy-" + *port + ".service")
-			cmd("systemctl disable MTProxy-" + *port + ".service")
-			cmd("rm " + path)
-		case "n":
-			log.Println("Program completed | Программа завершена")
-			return
-		case "N":
+		case "n", "N":
 			log.Println("Program completed | Программа завершена")
 			return
 		default:
